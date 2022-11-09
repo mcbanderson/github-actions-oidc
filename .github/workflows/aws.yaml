@@ -1,0 +1,19 @@
+name: AWS example workflow
+on: workflow_dispatch
+permissions:
+  id-token: write   # This is required for requesting the JWT
+  contents: read    # This is required for actions/checkout
+jobs:
+  AWSIdentityCheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Git clone the repository
+        uses: actions/checkout@v3
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::976809625379:role/gha_oidc_role_github-actions-oidc
+          aws-region: us-east-1
+      - name: Check AWS identity
+        run: |
+          aws sts get-caller-identity
