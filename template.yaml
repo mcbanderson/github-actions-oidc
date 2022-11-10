@@ -7,15 +7,6 @@ Parameters:
     Type: String
   RepositoryName:
     Type: String
-  OIDCProviderArn:
-    Description: Arn for the GitHub OIDC Provider.
-    Default: ""
-    Type: String
-
-Conditions:
-  CreateOIDCProvider: !Equals
-    - !Ref OIDCProviderArn
-    - ""
 
 Resources:
   Role:
@@ -26,10 +17,7 @@ Resources:
           - Effect: Allow
             Action: sts:AssumeRoleWithWebIdentity
             Principal:
-              Federated: !If
-                - CreateOIDCProvider
-                - !Ref GithubOIDCProvider
-                - !Ref OIDCProviderArn
+              Federated: !Ref GithubOIDCProvider
             Condition:
               StringLike:
                 token.actions.githubusercontent.com:sub: !Sub repo:${GitHubOrg}/${RepositoryName}:*
@@ -40,7 +28,6 @@ Resources:
 
   GithubOIDCProvider:
     Type: AWS::IAM::OIDCProvider
-    Condition: CreateOIDCProvider
     Properties:
       Url: https://token.actions.githubusercontent.com
       ClientIdList:
